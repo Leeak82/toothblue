@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         registerReceiver(receiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
+        registerReceiver(receiver, IntentFilter(BluetoothDevice.ACTION_NAME_CHANGED))
         registerReceiver(receiver, IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED))
 
         checkBluetoothStatusAndPermissions()
@@ -112,6 +113,21 @@ class MainActivity : AppCompatActivity() {
                         "FOUND NEW DEVICE!\n\nName: ${info.name}\nAddress: ${info.address}\n\n${Date()}",
                         Toast.LENGTH_SHORT
                     ).show()
+                }
+                BluetoothDevice.ACTION_NAME_CHANGED -> {
+                    val device: BluetoothDevice? = getDeviceExtra(intent)
+                    val realName = device?.name
+                    val addr = device?.address
+                    if (realName != null && addr != null) {
+                        scanner.onDeviceFound(
+                            BluetoothDeviceInfo(
+                                name = realName,
+                                address = addr,
+                                rssi = 0,
+                                paired = false
+                            )
+                        )
+                    }
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
                     statusView.text = "Discovery finished — ${scanner.snapshot().size} device(s). Restarting…"

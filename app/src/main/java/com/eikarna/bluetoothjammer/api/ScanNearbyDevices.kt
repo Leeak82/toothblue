@@ -96,7 +96,7 @@ class ScanNearbyDevices {
         } else {
             devicesMap[info.address] = existing.copy(
                 name = if (info.name != "Unknown Device") info.name else existing.name,
-                rssi = info.rssi,
+                rssi = if (info.rssi != 0) info.rssi else existing.rssi,
                 paired = existing.paired || info.paired
             )
         }
