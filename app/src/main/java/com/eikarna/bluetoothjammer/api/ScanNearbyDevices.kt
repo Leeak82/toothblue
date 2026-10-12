@@ -50,7 +50,7 @@ class ScanNearbyDevices {
             @SuppressLint("MissingPermission")
             val paired = bluetoothAdapter.bondedDevices
             paired?.forEach { device ->
-                try { device.fetchUuidsWithSdp() } catch (_: Exception) {}
+                try { device.fetchUuidsWithSdp() } catch (ignored: Exception) {}
                 val addr = device.address ?: return@forEach
                 devicesMap.getOrPut(addr) {
                     BluetoothDeviceInfo(
@@ -77,11 +77,15 @@ class ScanNearbyDevices {
 
         // Kick off classic discovery so ACTION_FOUND fires for unpaired devices.
         try {
-            @SuppressLint("MissingPermission")
-            bluetoothAdapter.startDiscovery()
+            startDiscoverySafe(bluetoothAdapter)
         } catch (e: SecurityException) {
             Log.e("ScanNearbyDevices", "startDiscovery denied", e)
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startDiscoverySafe(adapter: BluetoothAdapter) {
+        adapter.startDiscovery()
     }
 
     /** Called from MainActivity's ACTION_FOUND receiver. Never clears the map. */
@@ -111,7 +115,7 @@ class ScanNearbyDevices {
                         as? android.bluetooth.BluetoothManager
                 mgr?.adapter?.cancelDiscovery()
             }
-        } catch (_: Exception) {}
+        } catch (ignored: Exception) {}
     }
 
     fun resumeScanning() {

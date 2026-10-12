@@ -42,7 +42,7 @@ class AttackManager {
             onLog("Bluetooth adapter not available.")
             return
         }
-        try { adapter.cancelDiscovery() } catch (_: Exception) {}
+        try { adapter.cancelDiscovery() } catch (ignored: Exception) {}
 
         running.set(true)
         attemptCount.set(0)
@@ -66,9 +66,9 @@ class AttackManager {
     fun stop() {
         running.set(false)
         synchronized(jobs) {
-            jobs.forEach { try { it.cancel() } catch (_: Exception) {} }
+            jobs.forEach { try { it.cancel() } catch (ignored: Exception) {} }
             jobs.clear()
         }
-        try { scope.coroutineContext.cancelChildren() } catch (_: Exception) {}
+        try { scope.coroutineContext.cancelChildren() } catch (ignored: Exception) {}
     }
 }

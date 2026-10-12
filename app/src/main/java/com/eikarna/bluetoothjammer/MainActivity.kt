@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                     putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 1200)
                 }
                 startActivity(intent)
-            } catch (_: Exception) {
+            } catch (ignored: Exception) {
                 Toast.makeText(this, "Discoverable request failed", Toast.LENGTH_SHORT).show()
             }
         }
@@ -98,13 +98,7 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 BluetoothDevice.ACTION_FOUND -> {
-                    val device: BluetoothDevice? =
-                        if (Build.VERSION.SDK_INT >= 33) {
-                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
-                        } else {
-                            @Suppress("DEPRECATION")
-                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                        }
+                    val device: BluetoothDevice? = getDeviceExtra(intent)
                     val rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, 0).toInt()
                     val info = BluetoothDeviceInfo(
                         name = device?.name ?: "Unknown Device",
@@ -125,9 +119,18 @@ class MainActivity : AppCompatActivity() {
                     try {
                         val mgr = getSystemService(BluetoothManager::class.java)
                         mgr.adapter?.startDiscovery()
-                    } catch (_: SecurityException) {}
+                    } catch (ignored: SecurityException) {}
                 }
             }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getDeviceExtra(intent: Intent): BluetoothDevice? {
+        return if (Build.VERSION.SDK_INT >= 33) {
+            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+        } else {
+            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         }
     }
 
@@ -219,7 +222,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try { unregisterReceiver(receiver) } catch (_: Exception) {}
+        try { unregisterReceiver(receiver) } catch (ignored: Exception) {}
         scanner.stopScanning(this)
     }
 
