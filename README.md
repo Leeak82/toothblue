@@ -21,7 +21,3 @@ Jam/DoS your neighbour's bluetooth speaker/devices for peace!
 
 # Special Thanks
 - ChatGPT-4o
-
-## Support
-
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/anthonyleebuilds)
